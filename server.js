@@ -1,12 +1,50 @@
-var express=require("express");
-var app=express();
-var PORT=process.env.PORT || 3000 ;
-app.get("/",function(req,res){
-    
+var bodyParser=require('body-parser');
+var express = require("express");
+var app = express();
+var PORT = process.env.PORT || 3000;
+
+var todos = [];
+var todoNextId=1;
+app.use(bodyParser.json());
+
+app.get("/todos", function (req, res) {
+    res.json(todos);
+});
+
+app.get("/todos/:id", function (req, res) {
+    var todoid = parseInt(req.params.id, 10);
+    var matched;
+    todos.forEach(function (todo) {
+        if (todoid === todo.id) {
+            matched = todo;
+        }
+
+    });
+    if (matched) {
+        res.json(matched);
+    }
+    else {
+        res.status(404).send();
+    }
+
+});
+
+
+
+app.get("/", function (req, res) {
+
     res.send("todo api root");
 });
 
-app.listen(PORT,function(){
-    console.log("express listening on port"+ PORT);
-    
+app.post("/todos",function (req,res) {
+    var body=req.body;
+    body.id = todoNextId++;
+    todos.push(body);
+    console.log("description: "+ body.description);
+    res.json(todos);
+});
+
+app.listen(PORT, function () {
+    console.log("express listening on port" + PORT);
+
 });
